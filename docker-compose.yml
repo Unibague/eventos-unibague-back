@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    container_name: eventos-backend
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      eventos_net:
+        ipv4_address: 192.168.251.10
+    command: >
+      sh -c "php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: eventos-postgres
+    environment:
+      POSTGRES_DB: eventos_unibague
+      POSTGRES_USER: desarrollador
+      POSTGRES_PASSWORD: Ed?3p20DB23
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      eventos_net:
+        ipv4_address: 192.168.251.12
+
+networks:
+  eventos_net:
+    external: true
+
+volumes:
+  pgdata:
