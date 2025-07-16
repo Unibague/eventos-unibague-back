@@ -4,7 +4,6 @@ services:
   backend:
     build:
       context: .
-      network: host  # <-- Permite al contenedor usar red del host durante build
     container_name: eventos-backend
     volumes:
       - .:/var/www/html
@@ -20,9 +19,6 @@ services:
     dns:
       - 8.8.8.8
       - 1.1.1.1
-    command: >
-      sh -c "php artisan migrate --force &&
-             php artisan serve --host=0.0.0.0 --port=8000"
 
   postgres:
     image: postgres:15-alpine
