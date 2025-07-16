@@ -1,24 +1,19 @@
-# Etapa 1: Composer con PHP 8.2 (compatible con Laravel)
-FROM composer:2.7 as composer_stage
+# Etapa 1: Composer (solo para instalación de dependencias)
+FROM composer:2.7 AS composer_stage
 
 WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-scripts
 
-# Copiar todo el proyecto para que artisan esté disponible
-COPY . .
-
-# Instalar dependencias de Composer
-RUN composer install --no-dev --prefer-dist --no-interaction
-
-
-# Etapa 2: Imagen final PHP con Apache
+# Etapa 2: Imagen final con PHP y Apache
 FROM php:8.2-apache
 
-# Instala dependencias necesarias
+# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git curl unzip libpq-dev libzip-dev zip && \
     docker-php-ext-install pdo pdo_pgsql
 
-# Habilita mod_rewrite y SSL
+# Habilita mod_rewrite
 RUN a2enmod rewrite ssl
 
 # Copia configuración de Apache
@@ -27,14 +22,17 @@ RUN a2ensite 002-eventos.conf && \
     a2dissite 000-default.conf && \
     service apache2 reload || true
 
-# Establece el directorio de trabajo
+# Establece directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia el código fuente
-COPY . .
+# Copia el código de la app
+COPY . /var/www/html
 
-# Copia vendor/ generado en la etapa anterior
-COPY --from=composer_stage /app/vendor ./vendor
+# Copia dependencias instaladas desde la etapa composer
+COPY --from=composer_stage /app/vendor /var/www/html/vendor
 
-# Asigna permisos necesarios
+# Asigna permisos correctos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Comando por defecto (usa Laravel con servidor embebido)
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
