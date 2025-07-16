@@ -16,8 +16,14 @@ services:
       eventos_net:
         ipv4_address: 192.168.251.10
     command: >
-      sh -c "php artisan migrate --force &&
-             php artisan serve --host=0.0.0.0 --port=8000"
+      sh -c "
+        until nc -z postgres 5432; do
+          echo '⏳ Esperando a PostgreSQL...'; sleep 2;
+        done &&
+        echo '✅ PostgreSQL listo. Ejecutando migraciones...' &&
+        php artisan migrate --force &&
+        php artisan serve --host=0.0.0.0 --port=8000
+      "
 
   postgres:
     image: postgres:15-alpine
