@@ -1,12 +1,15 @@
+version: '3.8'
+
 services:
   backend:
     build:
       context: .
+      network: host  # <-- Permite al contenedor usar red del host durante build
     container_name: eventos-backend
     volumes:
       - .:/var/www/html
     ports:
-      - "8000:80"  # Apache usa el 80, no el 8000 en este caso
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -14,9 +17,12 @@ services:
     networks:
       eventos_net:
         ipv4_address: 192.168.251.10
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     command: >
       sh -c "php artisan migrate --force &&
-             apache2-foreground"
+             php artisan serve --host=0.0.0.0 --port=8000"
 
   postgres:
     image: postgres:15-alpine
