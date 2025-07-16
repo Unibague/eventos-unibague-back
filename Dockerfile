@@ -1,5 +1,5 @@
 # Etapa 1: Composer con dependencias
-FROM composer:2 as composer_stage
+FROM composer:2.7 as composer_stage
 
 WORKDIR /app
 COPY composer.json composer.lock ./
