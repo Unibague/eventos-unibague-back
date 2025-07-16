@@ -1,5 +1,9 @@
 FROM php:8.2-apache
 
+# Establecer variables de entorno para evitar preguntas interactivas
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instalar dependencias necesarias
 RUN apt-get update && \
     apt-get install -y \
         git \
@@ -12,11 +16,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Habilitar mod_rewrite de Apache
-RUN a2enmod rewrite
-
-# Copiar archivos al contenedor
+# Copiar el contenido del proyecto
 COPY . /var/www/html
 
-# Establecer permisos adecuados
+# Dar permisos (opcional si necesitas escritura)
 RUN chown -R www-data:www-data /var/www/html
+
+# Exponer el puerto por si usas php artisan serve (Laravel)
+EXPOSE 8000
