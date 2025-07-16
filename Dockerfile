@@ -20,8 +20,7 @@ COPY ./apache/002-eventos.conf /etc/apache2/sites-available/002-eventos.conf
 
 # Activar el sitio
 RUN a2ensite 002-eventos.conf && \
-    a2dissite 000-default.conf && \
-    service apache2 restart
+    a2dissite 000-default.conf
 
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
