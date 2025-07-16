@@ -1,34 +1,27 @@
 FROM php:8.2-apache
 
-# Instalar extensiones necesarias y herramientas
-RUN apt-get update && \
-    apt-get install -y \
-        git \
-        curl \
-        unzip \
-        libpq-dev \
-        libzip-dev \
-        zip \
-        openssl && \
-    docker-php-ext-install pdo pdo_pgsql zip && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Instala dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    git curl unzip libpq-dev libzip-dev zip && \
+    docker-php-ext-install pdo pdo_pgsql
 
-# Habilitar mod_rewrite y mod_ssl para Apache
+# Habilita mod_rewrite
 RUN a2enmod rewrite ssl
 
-# Copiar virtualhost personalizado
+# Copia archivos de Apache y habilita el sitio
 COPY ./apache/002-eventos.conf /etc/apache2/sites-available/002-eventos.conf
-
-# Activar el sitio
 RUN a2ensite 002-eventos.conf && \
     a2dissite 000-default.conf && \
     service apache2 reload || true
 
-# Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar todos los archivos del proyecto
+# Copia código fuente
 COPY . /var/www/html
+
+# Copia Composer desde imagen oficial y ejecuta install
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Permisos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
