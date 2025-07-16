@@ -1,8 +1,8 @@
-version: "3.8"
-
 services:
   backend:
-    build: .
+    build:
+      context: .
+      network: host
     container_name: eventos-backend
     volumes:
       - .:/var/www/html
