@@ -2,11 +2,13 @@ version: '3.8'
 
 services:
   backend:
+    container_name: eventos-backend
     build:
       context: .
-    container_name: eventos-backend
+      dockerfile: Dockerfile
     ports:
-      - "8100:8000"
+      - "8100:443"        # Mapea el HTTPS interno (443) al 8100 del host
+      - "8000:80"         # Opcional: si quieres exponer HTTP directo para pruebas
     env_file:
       - .env
     depends_on:
@@ -21,6 +23,10 @@ services:
       sh -c "sleep 10 &&
              php artisan migrate --force &&
              apache2-foreground"
+    volumes:
+      - ./apache/002-eventos.conf:/etc/apache2/sites-available/002-eventos.conf:ro
+      - .:/var/www/html:delegated           # Monta tu código (incluye vendor en build)
+      - /etc/ssl/unibague:/etc/ssl/unibague:ro
 
   postgres:
     image: postgres:15-alpine
@@ -28,7 +34,7 @@ services:
     environment:
       POSTGRES_DB: eventos_unibague
       POSTGRES_USER: desarrollador
-      POSTGRES_PASSWORD: Ed?3p20DB23
+      POSTGRES_PASSWORD: 'Ed?3p20DB23'
     ports:
       - "5434:5432"
     volumes:
