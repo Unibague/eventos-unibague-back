@@ -6,7 +6,7 @@ services:
       context: .
     container_name: eventos-backend
     ports:
-      - "8100:8000"
+      - "8100:80"
     env_file:
       - .env
     depends_on:
@@ -20,7 +20,7 @@ services:
     command: >
       sh -c "sleep 10 &&
              php artisan migrate --force &&
-             php artisan serve --host=0.0.0.0 --port=8000"
+             apache2-foreground"
 
   postgres:
     image: postgres:15-alpine
