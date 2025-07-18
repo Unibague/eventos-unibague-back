@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Instala dependencias
+# Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
     nginx \
     libpq-dev \
@@ -16,20 +16,17 @@ RUN apt-get update && apt-get install -y \
 # Instala Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Establece el directorio de trabajo
+# Define el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia el código del proyecto al contenedor
+# Copia el código fuente
 COPY . .
 
-# Copia archivo de configuración NGINX
+# Copia la configuración de NGINX
 COPY nginx/002-eventosng.conf /etc/nginx/sites-available/default
 
-# Copia los certificados SSL
-COPY ssl/unibague /etc/ssl/unibague
-
 # Expone puertos necesarios
-EXPOSE 443 80
+EXPOSE 80 443
 
-# Comando por defecto
+# Inicia servicios
 CMD service php8.2-fpm start && nginx -g "daemon off;"
