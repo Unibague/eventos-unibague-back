@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   backend:
     container_name: eventos-backend
@@ -6,7 +8,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8100:443"  # HTTPS
-      - "8000:80"   # HTTP opcional
+      - "8000:80"   # HTTP (opcional)
     env_file:
       - .env
     depends_on:
@@ -19,10 +21,10 @@ services:
       - 1.1.1.1
     volumes:
       - .:/var/www/html
-      - ./nginx/002-eventosng.conf:/etc/nginx/sites-available/002-eventosng.conf
+      - ./nginx/002-eventosng.conf:/etc/nginx/sites-available/default
       - /etc/ssl/unibague:/etc/ssl/unibague:ro
     command: >
-      sh -c "sleep 10 && php artisan migrate --force && nginx -g 'daemon off;'"
+      sh -c "sleep 10 && php artisan migrate --force && service php8.2-fpm start && nginx -g 'daemon off;'"
 
   postgres:
     image: postgres:15-alpine
