@@ -31,12 +31,20 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage \
     && chmod -R 755 bootstrap/cache
 
-# Copia configuración de NGINX
+# Copia la configuración de NGINX
 COPY nginx/002-eventosng.conf /etc/nginx/sites-available/default
 
+# Copia la configuración de supervisor
+COPY supervisord.conf /etc/supervisord.conf
+
+# Crea enlace simbólico para sites-enabled (opcional si usas solo default)
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Limpieza (opcional)
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Expone los puertos necesarios
 EXPOSE 80 443
 
-# Inicia ambos servicios usando supervisor
-CMD ["/usr/bin/supervisord"]
+# Inicia ambos servicios usando supervisord
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
