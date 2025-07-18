@@ -34,8 +34,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Copia configuración de NGINX
 COPY nginx/002-eventosng.conf /etc/nginx/sites-available/default
 
-# Copia archivo de configuración de supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expone los puertos necesarios
 EXPOSE 80 443
