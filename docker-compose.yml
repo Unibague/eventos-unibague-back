@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8100:443"  # HTTPS externo mapeado
-      - "8000:80"   # HTTP externo mapeado
+      - "8010:80"   # HTTP externo mapeado
     env_file:
       - .env
     depends_on:
