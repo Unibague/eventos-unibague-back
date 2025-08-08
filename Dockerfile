@@ -2,7 +2,6 @@ FROM php:8.2-fpm
 
 # Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
-    nginx \
     libpq-dev \
     git \
     unzip \
@@ -11,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     zip \
-    supervisor \
     && docker-php-ext-install pdo pdo_pgsql zip
 
 # Instala Composer
@@ -31,20 +29,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage \
     && chmod -R 755 bootstrap/cache
 
-# Copia la configuración de NGINX
-COPY nginx/002-eventosng.conf /etc/nginx/sites-available/default
+# Expone el puerto de PHP-FPM
+EXPOSE 9000
 
-# Copia la configuración de supervisor
-COPY supervisord.conf /etc/supervisord.conf
-
-# Crea enlace simbólico para sites-enabled (opcional si usas solo default)
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-# Limpieza (opcional)
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Expone los puertos necesarios
-EXPOSE 80 443
-
-# Inicia ambos servicios usando supervisord
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+# Comando por defecto: PHP-FPM
+CMD ["php-fpm"]
